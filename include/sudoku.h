@@ -1,6 +1,14 @@
 #ifndef SUDOKU_H_
 #define SUDOKU_H_
 
+#include <errno.h>
+#include <fcntl.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
 #define ROWS     9
 #define COLS     9
 #define MIN_NUM  1

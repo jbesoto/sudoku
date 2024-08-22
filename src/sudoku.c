@@ -1,10 +1,16 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>  // strerror
-#include <fcntl.h>   // O_RDONLY
-#include <errno.h>
-#include <stdbool.h>
+/**
+ * @file   sudoku.c
+ * @author Juan Diego Becerra (@jbesoto)
+ * @date   Aug 22, 2024
+ * @brief  Program to solve 9x9 Sudoku puzzles using a backtracking algorithm.
+ *
+ * This file contains the implementation of a Sudoku solver, which utilizes
+ * a recursive backtracking algorithm to fill a 9x9 Sudoku grid with valid
+ * numbers. The solver reads the initial board configuration from a file,
+ * solves the puzzle, and prints both the initial and solved board states.
+ *
+ * @see sudoku.h
+ */
 
 #include "../include/sudoku.h"
 
@@ -16,6 +22,9 @@ int main(int argc, char *argv[]) {
 
   char *filepath = argv[1];
   SudokuCell (*board)[ROWS] = CreateBoard(filepath);
+  if (!board) {
+    return 1;
+  }
 
   printf("Your Board:\n");
   PrintBoard(board);
@@ -28,6 +37,18 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
+/**
+ * @brief Creates and initializes the Sudoku board from the given file.
+ *
+ * Allocates memory for the board, initializes it with zeros, and then loads
+ * the board values from the specified file. If an error occurs during
+ * allocation or loading, it returns NULL.
+ *
+ * @param filepath The path to the file containing the initial Sudoku board.
+ *
+ * @return SudokuCell (*)[ROWS] Pointer to the initialized Sudoku board, or NULL
+ *         on failure.
+ */
 SudokuCell (*CreateBoard(char *filepath))[ROWS] {
   SudokuCell (*board)[ROWS] = malloc(sizeof(SudokuCell[ROWS][COLS]));
   if (!board) {
@@ -46,6 +67,19 @@ SudokuCell (*CreateBoard(char *filepath))[ROWS] {
   return board;
 }
 
+/**
+ * @brief Validates if a candidate number can be placed in the specified cell.
+ *
+ * Checks whether the candidate number can be placed in the specified row,
+ * column, and 3x3 subgrid without violating Sudoku rules.
+ *
+ * @param board     The Sudoku board.
+ * @param candidate The candidate number to validate (1-9).
+ * @param row       The row index of the cell.
+ * @param col       The column index of the cell.
+
+ * @return bool true if the candidate can be placed, false otherwise.
+ */
 bool IsValid(SudokuCell board[ROWS][COLS], int candidate, size_t row, size_t col) {
   size_t mid_i, mid_j;
 
@@ -88,6 +122,17 @@ bool IsValid(SudokuCell board[ROWS][COLS], int candidate, size_t row, size_t col
   return true;
 }
 
+/**
+ * @brief Loads the Sudoku board from a file into memory.
+ *
+ * Reads the board values from the specified file and populates the board array.
+ * Cells with numeric values (1-9) are marked as locked. Returns -1 on error.
+ *
+ * @param filepath The path to the file containing the Sudoku board.
+ * @param board    The Sudoku board to be populated.
+ *
+ * @return int 0 on success, -1 on failure.
+ */
 int LoadBoard(char *filepath, SudokuCell board[ROWS][COLS]) {
   int fd = open(filepath, O_RDONLY);
   if (fd < 0) {
@@ -120,6 +165,14 @@ int LoadBoard(char *filepath, SudokuCell board[ROWS][COLS]) {
   return 0;
 }
 
+/**
+ * @brief Prints the current state of the Sudoku board.
+ *
+ * This function prints the Sudoku board to the standard output in a formatted
+ * manner, using `|` and `#` to delineate cells and subgrids.
+ *
+ * @param board The Sudoku board to be printed.
+ */
 void PrintBoard(SudokuCell board[ROWS][COLS]) {
   if (!board) {
     fprintf(stderr, "Error: board is NULL\n");
@@ -147,6 +200,11 @@ void PrintBoard(SudokuCell board[ROWS][COLS]) {
   }
 }
 
+/**
+ * @brief Prints the help message for the Sudoku solver program.
+ *
+ * Displays usage instructions and options for the program.
+ */
 void PrintHelp(void) {
   printf("sudoku - A program that solves 9x9 sudoku puzzles.\n");
   printf("\n");
@@ -157,6 +215,15 @@ void PrintHelp(void) {
   printf("  %-20s %s\n", "-h, --help", "Show this message and exit.");
 }
 
+/**
+ * @brief Solves the Sudoku puzzle using a backtracking algorithm.
+ *
+ * Iterates through every cell in the board, attempting to solve each one
+ * using the `SolveCell()` function. This function is the main driver of
+ * the backtracking algorithm.
+ *
+ * @param board The Sudoku board to be solved.
+ */
 void SolveSudoku(SudokuCell board[ROWS][COLS]) {
   for (size_t i = 0; i < ROWS; i++) {
     for (size_t j = 0; j < COLS; j++) {
@@ -165,6 +232,19 @@ void SolveSudoku(SudokuCell board[ROWS][COLS]) {
   }
 }
 
+/**
+ * @brief Attempts to solve the specified cell using a backtracking approach.
+ *
+ * Tries all candidate numbers (1-9) for the specified cell, checking if
+ * they can be placed without violating Sudoku rules. If a valid candidate
+ * is found, it is placed in the cell. If no valid candidate is found,
+ * the function backtracks to the previous cell to try a different candidate.
+ *
+ * @param board The Sudoku board.
+ * @param num   The starting candidate number.
+ * @param row   The row index of the cell to be solved.
+ * @param col   The column index of the cell to be solved.
+ */
 void SolveCell(SudokuCell board[ROWS][COLS], int num, size_t *row, size_t *col) {
   if (board[*row][*col].locked) {
     return;
