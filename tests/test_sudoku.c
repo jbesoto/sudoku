@@ -28,11 +28,11 @@ int main(int argc, char *argv[]) {
   }
 
   char *filepath = argv[1];
-  SudokuCell (*board)[ROWS] = CreateBoard(filepath);
+  SudokuCell (*board)[kRows] = CreateBoard(filepath);
   SolveSudoku(board);
 
-  for (size_t i = 0; i < ROWS; i++) {
-    for (size_t j = 0; j < COLS; j++) {
+  for (size_t i = 0; i < kRows; i++) {
+    for (size_t j = 0; j < kCols; j++) {
       int value = board[i][j].value;
       if (value == 0) {
         continue;

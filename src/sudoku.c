@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
   }
 
   char *filepath = argv[1];
-  SudokuCell (*board)[ROWS] = CreateBoard(filepath);
+  SudokuCell (*board)[kRows] = CreateBoard(filepath);
   if (!board) {
     return 1;
   }
@@ -51,14 +51,14 @@ int main(int argc, char *argv[]) {
  * @return SudokuCell (*)[ROWS] Pointer to the initialized Sudoku board, or NULL
  *         on failure.
  */
-SudokuCell (*CreateBoard(char *filepath))[ROWS] {
-  SudokuCell (*board)[ROWS] = malloc(sizeof(SudokuCell[ROWS][COLS]));
+SudokuCell (*CreateBoard(char *filepath))[kRows] {
+  SudokuCell (*board)[kRows] = malloc(sizeof(SudokuCell[kRows][kCols]));
   if (!board) {
      fprintf(stderr, "Error: Unable to malloc board: %s\n", strerror(errno));
      return NULL;
   }
 
-  memset(board, 0, sizeof(SudokuCell[ROWS][COLS]));
+  memset(board, 0, sizeof(SudokuCell[kRows][kCols]));
 
   if (LoadBoard(filepath, board) < 0) {
     fprintf(stderr, "Error: Unable to read board into buffer: %s\n", strerror(errno));
@@ -82,7 +82,7 @@ SudokuCell (*CreateBoard(char *filepath))[ROWS] {
 
  * @return bool true if the candidate can be placed, false otherwise.
  */
-bool IsValid(SudokuCell board[ROWS][COLS], int candidate, size_t row, size_t col) {
+bool IsValid(SudokuCell board[kRows][kCols], int candidate, size_t row, size_t col) {
   size_t mid_i, mid_j;
 
   // Find middle of 3x3 grid
@@ -102,7 +102,7 @@ bool IsValid(SudokuCell board[ROWS][COLS], int candidate, size_t row, size_t col
   }
 
   // Check row
-  for (size_t i = 0; i < COLS; i++) {
+  for (size_t i = 0; i < kCols; i++) {
     if (&board[row][col] == &board[row][i]) {
       continue;
     }
@@ -112,7 +112,7 @@ bool IsValid(SudokuCell board[ROWS][COLS], int candidate, size_t row, size_t col
   }
 
   // Check column
-  for (size_t i = 0; i < ROWS; i++) {
+  for (size_t i = 0; i < kRows; i++) {
     if (&board[row][col] == &board[i][col]) {
       continue;
     }
@@ -135,7 +135,7 @@ bool IsValid(SudokuCell board[ROWS][COLS], int candidate, size_t row, size_t col
  *
  * @return int 0 on success, -1 on failure.
  */
-int LoadBoard(char *filepath, SudokuCell board[ROWS][COLS]) {
+int LoadBoard(char *filepath, SudokuCell board[kRows][kCols]) {
   int fd = open(filepath, O_RDONLY);
   if (fd < 0) {
     return -1;
@@ -145,7 +145,7 @@ int LoadBoard(char *filepath, SudokuCell board[ROWS][COLS]) {
   ssize_t bytes;
 
   size_t i = 0, j = 0;
-  while ((bytes = read(fd, buf, sizeof(char))) > 0 && i < ROWS) {
+  while ((bytes = read(fd, buf, sizeof(char))) > 0 && i < kRows) {
     if (buf[0] == '\n') {
       i++;
       j = 0;
@@ -175,29 +175,47 @@ int LoadBoard(char *filepath, SudokuCell board[ROWS][COLS]) {
  *
  * @param board The Sudoku board to be printed.
  */
-void PrintBoard(SudokuCell board[ROWS][COLS]) {
+void PrintBoard(SudokuCell board[kRows][kCols]) {
   if (!board) {
     fprintf(stderr, "Error: board is NULL\n");
     return;
   }
 
-  printf("#---#---#---#---#---#---#---#---#---#\n");
-  for (size_t i = 0; i < ROWS; i++) {
-    for (size_t j = 0; j < COLS; j++) {
-      if (board[i][j].value == 0) {
-        printf("|   ");
+  const char *kBackground = "\033[48;5;240m";
+  const char *kReset = "\033[0m";
+
+  printf("╔═══════════╦═══════════╦═══════════╗\n");
+  for (size_t i = 0; i < kRows; i++) {
+    for (size_t j = 0; j < kCols; j++) {
+      // Print separator
+      if (j % 3 == 0) {
+        printf("║");
       } else {
-        printf("| %d ", board[i][j].value);
+        printf("│");
       }
 
-      if (j + 1 == COLS) {
-        printf("|\n");
+      // Print cell value
+      if (board[i][j].value == 0) {
+        printf("   ");
+      } else if (board[i][j].locked) {
+        printf("%s %d %s", kBackground, board[i][j].value, kReset);
+      } else {
+        printf(" %d ", board[i][j].value);
+      }
+
+      // End of the row
+      if (j == kCols - 1) {
+        printf("║\n");
       }
     }
-    if (i > 0 && (i + 1) % 3 == 0) {
-      printf("#---#---#---#---#---#---#---#---#---#\n");
+
+    // Print bottom and intermediate borders
+    if (i == kRows - 1) {
+      printf("╚═══════════╩═══════════╩═══════════╝\n");
+    } else if ((i + 1) % 3 == 0) {
+      printf("╠═══════════╬═══════════╬═══════════╣\n");
     } else {
-      printf("#-----------#-----------#-----------#\n");
+      printf("╟───────────╬───────────╬───────────╢\n");
     }
   }
 }
@@ -212,9 +230,6 @@ void PrintHelp(void) {
   printf("\n");
   printf("Usage:\n");
   printf("  sudoku [OPTIONS] <FILE>\n");
-  printf("\n");
-  printf("Options:\n");
-  printf("  %-20s %s\n", "-h, --help", "Show this message and exit.");
 }
 
 /**
@@ -226,10 +241,10 @@ void PrintHelp(void) {
  *
  * @param board The Sudoku board to be solved.
  */
-void SolveSudoku(SudokuCell board[ROWS][COLS]) {
-  for (size_t i = 0; i < ROWS; i++) {
-    for (size_t j = 0; j < COLS; j++) {
-      SolveCell(board, MIN_NUM, &i, &j);
+void SolveSudoku(SudokuCell board[kRows][kCols]) {
+  for (size_t i = 0; i < kRows; i++) {
+    for (size_t j = 0; j < kCols; j++) {
+      SolveCell(board, kMinNum, &i, &j);
     }
   }
 }
@@ -247,14 +262,14 @@ void SolveSudoku(SudokuCell board[ROWS][COLS]) {
  * @param row   The row index of the cell to be solved.
  * @param col   The column index of the cell to be solved.
  */
-void SolveCell(SudokuCell board[ROWS][COLS], int num, size_t *row, size_t *col) {
+void SolveCell(SudokuCell board[kRows][kCols], int num, size_t *row, size_t *col) {
   if (board[*row][*col].locked) {
     return;
   }
 
   int candidate;
 
-  for (candidate = num; candidate <= 9; candidate++) {
+  for (candidate = num; candidate <= kMaxNum; candidate++) {
     if (IsValid(board, candidate, *row, *col)) {
       board[*row][*col].value = candidate;
       return;
@@ -264,7 +279,7 @@ void SolveCell(SudokuCell board[ROWS][COLS], int num, size_t *row, size_t *col) 
   // Backtrack
   do {
     *row = (*col == 0) ? *row - 1 : *row;
-    *col = (*col == 0) ? COLS - 1 : *col - 1;
+    *col = (*col == 0) ? kCols - 1 : *col - 1;
   } while (board[*row][*col].locked);
 
   candidate = board[*row][*col].value + 1;
