@@ -1,0 +1,62 @@
+# Object files
+*.o
+*.obj
+
+# Compiled binary files
+sudoku
+test_sudoku
+debug
+
+# Build directory (if applicable)
+build/
+bin/
+
+# Debug files
+*.dSYM/
+*.exe
+*.stackdump
+*.out
+*.log
+
+# VSCode specific files
+.vscode/
+*.code-workspace
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+*.dll
+
+# CTags
+tags
+
+# Backup files
+*.bak
+*.swp
+
+# Dependency files
+*.d
+
+# Generated files
+*.class
+*.dll
+*.so
+*.jar
+*.pyc
+*.pyo
+*.pdb
+
+# MacOS specific files
+.DS_Store
+
+# Windows specific files
+Thumbs.db
+desktop.ini
+
+# CMake generated files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+
