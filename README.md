@@ -9,7 +9,7 @@
 
 ## Overview
 
-The **Sudoku Solver** is a C program that uses a backtracking algorithm to solve 9x9 Sudoku puzzles.The solver reads an initial board configuration from a file, solves the puzzle, and prints both the initial and solved states of the board.
+The **Sudoku Solver** is a C program that uses a backtracking algorithm to solve 9x9 Sudoku puzzles. The solver reads an initial board configuration from a file, solves the puzzle, and prints both the initial and solved states of the board.
 
 ## Features
 
