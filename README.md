@@ -58,7 +58,12 @@ To solve a Sudoku puzzle, run the `sudoku` program with the path to a text file 
 
 ### Puzzle File Format
 
-Each Sudoku puzzle should be represented as a 9x9 grid in a text file, with empty cells represented by spaces or any other non-numeric character that you choose to use. Example:
+Each Sudoku puzzle should be represented as a 9x9 grid in a text file, with empty cells represented by spaces or any other non-numeric character that you choose to use.
+
+> [!TIP]
+> Check out [ASCIIFlow](https://asciiflow.com) to build text Sudoku boards fast and easy.
+
+Example:
 
 ```
 74  1 5

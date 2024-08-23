@@ -171,7 +171,7 @@ int LoadBoard(char *filepath, SudokuCell board[kRows][kCols]) {
  * @brief Prints the current state of the Sudoku board.
  *
  * This function prints the Sudoku board to the standard output in a formatted
- * manner, using `|` and `#` to delineate cells and subgrids.
+ * manner.
  *
  * @param board The Sudoku board to be printed.
  */
@@ -229,7 +229,7 @@ void PrintHelp(void) {
   printf("sudoku - A program that solves 9x9 sudoku puzzles.\n");
   printf("\n");
   printf("Usage:\n");
-  printf("  sudoku [OPTIONS] <FILE>\n");
+  printf("  sudoku <FILE>\n");
 }
 
 /**
