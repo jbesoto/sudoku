@@ -14,6 +14,7 @@
 
 #include "../include/sudoku.h"
 
+#ifndef TEST
 int main(int argc, char *argv[]) {
   if (argc < 2) {
     PrintHelp();
@@ -36,6 +37,7 @@ int main(int argc, char *argv[]) {
   free(board);
   return 0;
 }
+#endif
 
 /**
  * @brief Creates and initializes the Sudoku board from the given file.
@@ -261,8 +263,8 @@ void SolveCell(SudokuCell board[ROWS][COLS], int num, size_t *row, size_t *col) 
 
   // Backtrack
   do {
-    *row = (*col == 0) ? (*row - 1) % ROWS : *row;
-    *col = (*col - 1) % COLS;
+    *row = (*col == 0) ? *row - 1 : *row;
+    *col = (*col == 0) ? COLS - 1 : *col - 1;
   } while (board[*row][*col].locked);
 
   candidate = board[*row][*col].value + 1;

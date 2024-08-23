@@ -13,7 +13,10 @@ $(TARGET): $(SRC) $(INCLUDE)
 debug: $(SRC) $(INCLUDE)
 	$(CC) $(DFLAGS) $(SRC) -o debug
 
+test: tests/test_sudoku.c $(INCLUDE) $(SRC)
+	$(CC) $(FLAGS) -DTEST tests/test_sudoku.c $(SRC) -o test_sudoku
+
 clean:
-	rm $(TARGET) debug
+	rm $(TARGET) debug test_sudoku
 
 .PHONY: clean
