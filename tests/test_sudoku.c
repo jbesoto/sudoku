@@ -29,6 +29,9 @@ int main(int argc, char *argv[]) {
 
   char *filepath = argv[1];
   SudokuCell (*board)[kRows] = CreateBoard(filepath);
+  if (!board) {
+    return 1;
+  }
   SolveSudoku(board);
 
   for (size_t i = 0; i < kRows; i++) {
@@ -38,6 +41,7 @@ int main(int argc, char *argv[]) {
         continue;
       }
       if (!IsValid(board, value, i, j)) {
+        free(board);
         return 1;
       }
     }
