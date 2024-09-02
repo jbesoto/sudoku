@@ -129,6 +129,8 @@ bool IsValid(SudokuCell board[kRows][kCols], int candidate, size_t row, size_t c
  *
  * Reads the board values from the specified file and populates the board array.
  * Cells with numeric values (1-9) are marked as locked. Returns -1 on error.
+ * Up to `kCols` characters are read into the buffer per row, for a maximum
+ * `kRows` rows. Exceeding rows and characters are ignored.
  *
  * @param filepath The path to the file containing the Sudoku board.
  * @param board    The Sudoku board to be populated.
@@ -151,6 +153,11 @@ int LoadBoard(char *filepath, SudokuCell board[kRows][kCols]) {
       j = 0;
       continue;
     }
+
+    if (j >= kCols) {
+      continue;
+    }
+
     if (buf[0] > '0' && buf[0] <= '9') {
       board[i][j].value = buf[0] - '0';
       board[i][j].locked = true;
