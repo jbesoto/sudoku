@@ -17,9 +17,11 @@
 typedef struct {
   int value;
   bool locked;
+  bool invalid;
 } SudokuCell;
 
 SudokuCell (*CreateBoard(char *filepath))[kRows];
+bool IsBoardValid(SudokuCell board[kRows][kCols]);
 bool IsValid(SudokuCell board[kRows][kCols], int candidate, size_t row, size_t col);
 int LoadBoard(char *filepath, SudokuCell board[kRows][kCols]);
 void PrintBoard(SudokuCell board[kRows][kCols]);

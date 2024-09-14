@@ -24,7 +24,14 @@ int main(int argc, char *argv[]) {
   char *filepath = argv[1];
   SudokuCell (*board)[kRows] = CreateBoard(filepath);
   if (!board) {
-    return 1;
+    return EXIT_FAILURE;
+  }
+
+  if (!IsBoardValid(board)) {
+    fprintf(stderr, "Error: Provided board is invalid\n");
+    PrintBoard(board);
+    free(board);
+    return EXIT_FAILURE;
   }
 
   printf("Your Board:\n");
@@ -35,7 +42,7 @@ int main(int argc, char *argv[]) {
   PrintBoard(board);
 
   free(board);
-  return 0;
+  return EXIT_SUCCESS;
 }
 #endif
 
@@ -67,6 +74,38 @@ SudokuCell (*CreateBoard(char *filepath))[kRows] {
   }
 
   return board;
+}
+
+/**
+ * @brief Checks if the current state of the Sudoku board is valid.
+ *
+ * Iterates through each cell of the Sudoku board and verifies that all
+ * non-empty cells contain valid numbers according to the Sudoku rules.
+ * A number is considered valid if it does not violate the uniqueness constraint
+ * for its row, column, and 3x3 subgrid. If an invalid number is found, the
+ * corresponding cell is marked as invalid.
+ *
+ * @param board The current state of the Sudoku board.
+ *
+ * @return bool true if the board is valid, false if any invalid numbers are
+ *         found.
+ */
+bool IsBoardValid(SudokuCell board[kRows][kCols]) {
+  bool valid = true;
+  for (size_t i = 0; i < kRows; i++) {
+    for (size_t j = 0; j < kCols; j++) {
+      int value = board[i][j].value;
+      if (value == 0) {
+        continue;
+      }
+      if (!IsValid(board, value, i, j)) {
+        board[i][j].invalid = true;
+        valid = false;
+      }
+    }
+  }
+
+  return valid;
 }
 
 /**
@@ -188,7 +227,8 @@ void PrintBoard(SudokuCell board[kRows][kCols]) {
     return;
   }
 
-  const char *kBackground = "\033[48;5;240m";
+  const char *kLockedBackground = "\033[48;5;240m";
+  const char *kInvalidBackground = "\033[48;5;1m";
   const char *kReset = "\033[0m";
 
   printf("╔═══════════╦═══════════╦═══════════╗\n");
@@ -204,8 +244,10 @@ void PrintBoard(SudokuCell board[kRows][kCols]) {
       // Print cell value
       if (board[i][j].value == 0) {
         printf("   ");
+      } else if (board[i][j].invalid) {
+        printf("%s %d %s", kInvalidBackground, board[i][j].value, kReset);
       } else if (board[i][j].locked) {
-        printf("%s %d %s", kBackground, board[i][j].value, kReset);
+        printf("%s %d %s", kLockedBackground, board[i][j].value, kReset);
       } else {
         printf(" %d ", board[i][j].value);
       }
